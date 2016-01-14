@@ -13,54 +13,60 @@ import com.ociweb.benchmarks.domain.UserIdConstants;
 
 public class StartHZClient {
 
-    static HazelcastInstance hazelcastInstance;
+    private HazelcastInstance hazelcastInstance;
+    private UserId[] users;
     
     public static void main(String[] args) {
+        StartHZClient instance = new StartHZClient();
+        
+        instance.setup(200_000, null);
+        instance.run();
+        instance.shutdown();
+                
+    }
+
+    
+    public void setup(int testSize, String clusterAddr) {
+        users = buildFakeUserSet(testSize);
+        
         ClientConfig clientConfig = new ClientConfig();        
         SerializationConfig serializationConfig = clientConfig.getSerializationConfig();
         
         serializationConfig.addDataSerializableFactory(UserIdConstants.FACTORY_ID, new ExampleObjectFactory());
         
-      //  serializationConfig.setAllowUnsafe(true); //speeds the IO serialization
-     //   serializationConfig.setUseNativeByteOrder(true); //we assume everyone is using intel.
-    //    serializationConfig.setEnableCompression(true); //not sure this is enabled unless the server supports it as well.
-                
-        clientConfig.addAddress("172.17.42.1"); //My docker address, that does not change no matter where I go.
+        //  serializationConfig.setAllowUnsafe(true); //speeds the IO serialization
+        //   serializationConfig.setUseNativeByteOrder(true); //we assume everyone is using intel.
+        //    serializationConfig.setEnableCompression(true); //not sure this is enabled unless the server supports it as well.
+       
+        if (null != clusterAddr) {
+            clientConfig.getNetworkConfig().addAddress(clusterAddr);
+        }
+        
+        //     clientConfig.addAddress(); //My docker address, that does not change no matter where I go.
         
         hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
+    }
+    
+    public void run() {
         
-        UserId[] users = buildFakeUserSet();
         
         ISet<UserId> isOnLineSet = hazelcastInstance.getSet(UserIdConstants.ON_LINE_SET_NAME);
         
-        System.out.println("starting to run test");
-        long startTime = System.currentTimeMillis();
-        
-        int i = users.length;
+        UserId[] localUser = users;
+        int i = localUser.length;
         while (--i >= 0) {            
-            isOnLineSet.add(users[i]);
+            isOnLineSet.add(localUser[i]);
         }
         
-        long duration = System.currentTimeMillis()-startTime;
-        
-        System.out.println("duration "+duration);
-        System.out.println("msg/sec  "+((1000*users.length)/duration ));
-        
-        //need online and offline
-        
-        
-        
-        
-        
-        
-        
-        
-        
+     
+    }
+    
+    public void shutdown() {
+        hazelcastInstance.shutdown();
     }
 
-    private static UserId[] buildFakeUserSet() {
+    private static UserId[] buildFakeUserSet(int userCount) {
         //My Fake Users
-        int userCount = 2000_000;
         int seed = 123;
         Random r = new Random(seed);
         UserId[] users = new UserId[userCount];

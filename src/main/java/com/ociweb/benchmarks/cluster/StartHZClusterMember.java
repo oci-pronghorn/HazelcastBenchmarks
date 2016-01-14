@@ -58,6 +58,14 @@ public class StartHZClusterMember {
         boolean arrayBacked = true;
         
         
+        startClusterMember(arrayBacked);
+
+        System.out.println("instance is started");
+    }
+
+
+    public static HazelcastInstance startClusterMember(boolean arrayBacked) {
+        
         DataSerializableFactory factory;
         
         if (arrayBacked) {
@@ -68,16 +76,11 @@ public class StartHZClusterMember {
         
         instance = new StartHZClusterMember(UserIdConstants.FACTORY_ID, factory);
         
-        instance.test();
+        
+        return instance.hazelcastInstance;
     }
 
 
-    private void test() {
-        
-        System.out.println("instance is started");
-        
-    }
-    
     
 
 
