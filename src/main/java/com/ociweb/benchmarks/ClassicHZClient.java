@@ -11,13 +11,13 @@ import com.ociweb.benchmarks.cluster.factory.ExampleObjectFactory;
 import com.ociweb.benchmarks.domain.UserId;
 import com.ociweb.benchmarks.domain.UserIdConstants;
 
-public class StartHZClient {
+public class ClassicHZClient {
 
     private HazelcastInstance hazelcastInstance;
     private UserId[] users;
     
     public static void main(String[] args) {
-        StartHZClient instance = new StartHZClient();
+        ClassicHZClient instance = new ClassicHZClient();
         
         instance.setup(200_000, null);
         instance.run();
@@ -65,7 +65,7 @@ public class StartHZClient {
         hazelcastInstance.shutdown();
     }
 
-    private static UserId[] buildFakeUserSet(int userCount) {
+    public static UserId[] buildFakeUserSet(int userCount) {
         //My Fake Users
         int seed = 123;
         Random r = new Random(seed);

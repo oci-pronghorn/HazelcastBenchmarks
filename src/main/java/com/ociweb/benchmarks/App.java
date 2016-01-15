@@ -24,10 +24,10 @@ public class App {
         
         String clusterAddr = clusterMembers[0].getCluster().getLocalMember().getAddress().getHost();
         long duration = -1;
-        boolean standardDriver = true;
+        boolean standardDriver = false;
         
         if (standardDriver) {
-            StartHZClient testInstance = new StartHZClient();
+            ClassicHZClient testInstance = new ClassicHZClient();
             
             testInstance.setup(testSize, clusterAddr);
             
@@ -39,11 +39,17 @@ public class App {
                     
             testInstance.shutdown();
         } else {
+            PronghornHZClient testInstance = new PronghornHZClient();
             
+            testInstance.setup(testSize, clusterAddr);
             
-            //put our driver here.
+            long startTime = System.currentTimeMillis();        
             
+            testInstance.run();
             
+            duration = System.currentTimeMillis()-startTime;
+                    
+            testInstance.shutdown();
         }
 
         
